@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Unity.VisualScripting;
 
 public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 {
@@ -11,6 +12,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     [Header("플레이어 이동 및 점프")]
     Rigidbody2D rigid;//null
     CapsuleCollider2D coll;
+    BoxCollider2D box2d;
     Animator anim;
     Vector3 moveDir;
     float verticalVelocity =0;//수직으로 떨어지는 힘
@@ -25,7 +27,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     [SerializeField] bool isGround;//인스팩터에서 플레이어가 플랫폼 타일에 착지 했는지 확인용
     bool isJump;
 
-
+    Camera camMain; 
 
     private void OnDrawGizmos()
     {
@@ -35,7 +37,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 
         }
 
-        //Debug.DrawLine();디버그로 체크용도로 씬 카메라에서 선을 그려줄수 있음
+        //Debug.DrawLine();디버그의 체크용도로 씬 카메라에서 선을 그려줄수 있음
         //Gizmos.DrawSphere() 디버그보다 더 많은 시각효과 제공
         //Handles.DrawWireArc
     }
@@ -43,12 +45,13 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     private void Awake()
     {
         rigid = GetComponent<Rigidbody2D>();//불러오기,호출
+        box2d = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
     }
 
     void Start()
     {
-        
+        camMain =Camera.main;
     }
 
     void Update()
@@ -59,6 +62,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         jump();
         checkGravity();
         doAnim();
+        checkAnim();
     }
     /// <summary>
     /// 해당 함수로 땅에 닿았는지 확인하는 코드
@@ -71,21 +75,26 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
             return; 
         }
         //if (gameObject.CompareTag("Player") == true) //태그는 string으로 대상의 택그를 구분
-        
+
         //float.PositiveInfinity
-        //Layer int로 대사ㅇ의 레이어를 구분
+        //Layer int로 대상의 레이어를 구분
         //Layer의 int와 공통적으로 활용하는int와 다름
         //Wall Layer,Ground Layer
         RaycastHit2D hit =
-        Physics2D.Raycast(transform.position,Vector2.down,
-        groundCheckLenght,LayerMask.GetMask("Ground"));
-        // new Vector2(0,-1)//GetMask(안에 2개 이상의 데이터 넣기; 가능)
+        //Physics2D.Raycast(transform.position,Vector2.down,
+        //groundCheckLenght,LayerMask.GetMask("Ground"));
+        //// new Vector2(0,-1)//GetMask(안에 2개 이상의 데이터 넣기; 가능)
+
+        Physics2D.BoxCast(box2d.bounds.center,box2d.bounds.size,
+        0f,Vector2.down, groundCheckLenght, LayerMask.GetMask("Ground"));
+
+        //bounds
 
         if (hit)
         {
             isGround = true;
         }
-        
+
 
     }
     /// <summary>
@@ -98,7 +107,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         moveDir.y = rigid.velocity.y;
         #region moveDir.y 메모
         //unity라이프사이클 순서 때문에 y가 초기화 되서
-        //moveDir.y = rigid.velocity.y; 이렇게 해야 가속도가 붙는다
+        //moveDir.y = rigid.velocity.y; 이렇게 적으면 Y값이 계속 더해져 가속도를 구현 할수 잇다
         #endregion 
         //슈팅게임 만들때는 오브젝트 코드에 의해 순간이동 하게 만듬
         //쿨리에 의해서 이동
@@ -110,6 +119,42 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         #region 중력조절 메모
         //Physics2D.gravity = moveDir;
         #endregion
+    }
+
+    private void checkAnim()
+    {
+        #region scale을 이용한 뒤집기
+        //    Vector3 scale = transform.localScale;
+        //    if (moveDir.x < 0f && scale.x!=1.0f)//왼쪽 0f인 이유는 <- moving() 함수참조
+        //    {
+        //        scale.x = 1.0f;
+        //        transform.localScale = scale;
+        //        Debug.Log("");
+        //    }
+        //    else if (moveDir.x > 0f && scale.x != -1.0f)//오른쪽
+        //    {
+        //        scale.x = -1.0f;
+        //        transform.localScale = scale;
+        //    }
+        //scale.x != -1.0f<- 예외처리
+        #endregion
+        //transform.localPosition:부모의 월드 기준의 위치를 가져올때
+        //transform.Position:월드 기준의 위치를 가져올때
+        Vector2 mouseWorldPos = camMain.ScreenToWorldPoint(Input.mousePosition);//Scene기준이 아닌 Game(carse 기준)
+        Vector2 playerPos = transform.position;
+        Vector2 fixedPos = mouseWorldPos - playerPos;
+
+        Vector3 playerScale =transform.localScale;
+        if (fixedPos.x > 0 && playerScale.x != -1.0f) 
+        {
+            playerScale.x = -1.0f;
+        }
+        else if (fixedPos.x < 0 && playerScale.x != 1.0f)
+        {
+            playerScale.x = 1.0f;
+        }
+        transform.localScale=playerScale;
+        //Debug.Log(mouseWorldPos);
     }
     /// <summary>
     /// 점프하는 기능
@@ -176,7 +221,9 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     /// </summary>
     private void doAnim() 
     {
-        anim.SetInteger("Horizontal",(int)moveDir.x);
-        anim.SetBool("isGrund", isGround);
+        anim.SetInteger("Horizontal",(int)moveDir.x);//int 형변환 후 Horizontal에 수치 부여
+        anim.SetBool("isGrund", isGround);//boll형태여서 o/x형태로 부여
     }
+
+    
 }
