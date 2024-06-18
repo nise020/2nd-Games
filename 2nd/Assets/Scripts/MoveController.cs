@@ -255,7 +255,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 
             verticalVelocity = jumpForce * 0.5f;
             //일정시간 유저가 입력할수 없어야 벽을 발로 참 x값을 볼수 있음
-            //dlqfurqnfrk xkdlajfmf wkrehdtlzudigka
+            //입력불가,타이머를 작동시켜야함
         }
         else if (isGround == false) //공중에 떠있는 상태
         {
