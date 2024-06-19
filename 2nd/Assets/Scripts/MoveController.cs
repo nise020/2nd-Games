@@ -15,13 +15,13 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     BoxCollider2D box2d;
     Animator anim;
     Vector3 moveDir;
-    float verticalVelocity =0;//수직으로 떨어지는 힘
+    float verticalVelocity = 0;//수직으로 떨어지는 힘
 
     [SerializeField] float jumpForce;
     [SerializeField] float moveSpeed;
 
     [SerializeField] bool showGroundCheck;
-    [SerializeField] float groundCheckLenght;//이 길아가 게임에서 얼마만큼의 길이가 육안으러 고기전에느,알수 없음
+    [SerializeField] float groundCheckLenght;//이 길이가 게임에서 얼마만큼의 길이가 육안으러 고기전에느,알수 없음
     [SerializeField] Color groundColorCheck;
 
     [SerializeField] bool isGround;//인스팩터에서 플레이어가 플랫폼 타일에 착지 했는지 확인용
@@ -32,7 +32,15 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     [SerializeField] bool touchWall;
     bool isWallJump;
     [SerializeField] float wallJumpTime = 0.3f;
-    float wallJumpTimee= 0.0f;//타이머
+    float wallJumpTimer = 0.0f;//타이머
+
+    [Header("대시")]
+    [SerializeField] private float dashTime = 0.3f;
+    [SerializeField] private float dashSpeed = 20.0f;
+    float dashTimer = 0.0f;//타이머
+    //대시이펙트
+
+    [SerializeField] KeyCode dashKey;//enum 데이터라서 인스팩터에서 키를 등록 가능
 
     private void OnDrawGizmos()
     {
@@ -63,9 +71,9 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     //}
     #endregion
 
-    public void TriggerEnter(HitBox.ehitBoxType _type,Collider2D collision)
+    public void TriggerEnter(HitBox.ehitBoxType _type, Collider2D collision)
     {
-        if (_type == HitBox.ehitBoxType.WallCheck) 
+        if (_type == HitBox.ehitBoxType.WallCheck)
         {
             if (collision.gameObject.layer == LayerMask.NameToLayer("Wall"))
             {
@@ -97,19 +105,48 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 
     void Start()
     {
-        camMain =Camera.main;
+        camMain = Camera.main;
     }
 
     void Update()
     {
+        checkTimers();
+
         checkGround();
 
+        dash();
+
         moving();
-        jump();
-        checkGravity();
         doAnim();
+        jump();
+
+        checkGravity();
+
         checkAnim();
     }
+
+    private void dash() //추가적인 메모 필요
+    {
+        if (dashTimer == 0.0f && Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.F)) 
+        {
+            //Input.GetKeyDown(dashKey);//이런식으로 가능
+            dashTimer = dashTime;
+            verticalVelocity = 0;
+            //if (transform.localScale.x > 0f) //왼쪽
+            //{
+            //    rigid.velocity = new Vector2(-dashSpeed, verticalVelocity);
+            //}
+            //else 
+            //{
+            //    rigid.velocity = new Vector2(dashSpeed, verticalVelocity);
+            //}
+
+            //rigid.velocity = transform.localScale.x>0 ? new Vector2(-dashSpeed);
+            rigid.velocity = new Vector2(transform.localScale.x > 0 ? -dashSpeed : dashSpeed,0.0f);
+        }
+
+    }
+
     /// <summary>
     /// 해당 함수로 땅에 닿았는지 확인하는 코드
     /// </summary>
@@ -143,13 +180,43 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 
 
     }
+
+    private void checkTimers()
+    {
+        if (wallJumpTimer > 0.0f)
+        {
+            wallJumpTimer -= Time.deltaTime;
+            if (wallJumpTimer < 0.0f)
+            {
+                wallJumpTimer = 0.0f;
+            }
+        }
+
+        if (dashTimer > 0.0f)
+        {
+            dashTimer -= Time.deltaTime;
+            if (dashTimer < 0.0f)
+            {
+                dashTimer = 0.0f;
+            }
+        }
+    }
+
     /// <summary>
     /// 특정 키를 사용해서 움직이는 기능
     /// </summary>
     private void moving() 
     {
+        if (wallJumpTimer > 0.0f || dashTimer > 0.0f)//밑에 코드 동작 못하게 하는 기능
+        {
+            return;
+        }
         //좌우키를 누르는 좌우로 움직인다
-        moveDir.x = Input.GetAxisRaw("Horizontal") * moveSpeed;//a Left a key -1 / d, Raight a key 1 아무것도 입력 안하면 0
+
+        moveDir.x = Input.GetAxisRaw("Horizontal") * moveSpeed;
+        //a Left a key -1 / d, Raight a key 1
+        //아무것도 입력하지 않으면 0
+
         moveDir.y = rigid.velocity.y;
         #region moveDir.y 메모
         //unity라이프사이클 순서 때문에 y가 초기화 되서
@@ -157,6 +224,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         #endregion 
         //슈팅게임 만들때는 오브젝트 코드에 의해 순간이동 하게 만듬
         //쿨리에 의해서 이동
+
         rigid.velocity = moveDir;//moveDir.y의 값이 0이면 값을 초기화 해서 천천히 내려감
         #region 메모
         //velocity는 rigid에 관련된기능이라 Time.deltaTime이 필요 없다
@@ -246,16 +314,22 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     /// </summary>
     private void checkGravity() 
     {
-        if (isWallJump == true) 
+        if (dashTimer > 0.0f)
+        {
+            return;
+        }
+        else if (isWallJump == true) 
         {
             isWallJump = false;
+
             Vector2 dir = rigid.velocity;
-            dir.x *= 1f;//반대
+            dir.x *= -1f;//반대방향//-1로 함으로서 x값을 반대로 부여
             rigid.velocity = dir;
 
             verticalVelocity = jumpForce * 0.5f;
             //일정시간 유저가 입력할수 없어야 벽을 발로 참 x값을 볼수 있음
             //입력불가,타이머를 작동시켜야함
+            wallJumpTimer = wallJumpTime;
         }
         else if (isGround == false) //공중에 떠있는 상태
         {
