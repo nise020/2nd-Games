@@ -1,8 +1,8 @@
-using Microsoft.Unity.VisualStudio.Editor;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro;
+using TMPro;//TMP_text
 using UnityEngine;
+using UnityEngine.UI;//image
 
 public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 {
@@ -39,7 +39,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     [SerializeField] private float dashSpeed = 20.0f;
     float dashTimer = 0.0f;//타이머
     TrailRenderer dashEffpact;//대시이펙트,null
-    [SerializeField] private float dashCollTime =2f;
+    [SerializeField] private float dashCollTime = 2f;
     float dashCollTimer = 0.0f;
 
     //글로벌 쿨타임
@@ -113,7 +113,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         anim = GetComponent<Animator>();
         dashEffpact = GetComponent<TrailRenderer>();
         dashEffpact.enabled = false;//끄기
-        //initUi();
+        initUi();
     }
 
     void Start()
@@ -239,10 +239,11 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
                 objDashCoolTime.SetActive(false);
 
             }
-            //2(타이머)/2(최대 타이머) = 1,0.5,0
+            //2(타이머)/2(최대 타이머) = 1/0.5/0
             //dashCollTime = 2초, 스킬을 쓰면 0. 점점 1이 되어가야 함
-
+            imgFill.fillAmount = 1 - dashCollTimer / dashCollTime;
             TextCoolTime.text = dashCollTimer.ToString("F1");
+            //F0 = 1 , F1 =1.0 , F2 1.00
         }
     }
 
@@ -410,7 +411,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     private void initUi() 
     {
         objDashCoolTime.SetActive(false);
-        //imgFill.fillAmount = 0;
+        imgFill.fillAmount = 0;
         TextCoolTime.text = "";
     }
 
