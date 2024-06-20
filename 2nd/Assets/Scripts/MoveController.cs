@@ -1,8 +1,8 @@
+using Microsoft.Unity.VisualStudio.Editor;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEditor;
-using Unity.VisualScripting;
 
 public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 {
@@ -38,12 +38,21 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     [SerializeField] private float dashTime = 0.3f;
     [SerializeField] private float dashSpeed = 20.0f;
     float dashTimer = 0.0f;//타이머
-    //대시이펙트
+    TrailRenderer dashEffpact;//대시이펙트,null
+    [SerializeField] private float dashCollTime =2f;
+    float dashCollTimer = 0.0f;
 
+    //글로벌 쿨타임
     [SerializeField] KeyCode dashKey;//enum 데이터라서 인스팩터에서 키를 등록 가능
 
+    [Header("대시 Ui")]
+    [SerializeField] GameObject objDashCoolTime;
+    [SerializeField] Image imgFill;
+    [SerializeField] TMP_Text TextCoolTime;
     private void OnDrawGizmos()
     {
+        
+
         if (showGroundCheck == true)
         {
             Debug.DrawLine(transform.position, transform.position - new Vector3(0, groundCheckLenght), groundColorCheck);//Color.red
@@ -73,6 +82,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 
     public void TriggerEnter(HitBox.ehitBoxType _type, Collider2D collision)
     {
+        //HitBox = Class 데이터
         if (_type == HitBox.ehitBoxType.WallCheck)
         {
             if (collision.gameObject.layer == LayerMask.NameToLayer("Wall"))
@@ -101,6 +111,9 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         rigid = GetComponent<Rigidbody2D>();//불러오기,호출
         box2d = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
+        dashEffpact = GetComponent<TrailRenderer>();
+        dashEffpact.enabled = false;//끄기
+        //initUi();
     }
 
     void Start()
@@ -127,11 +140,17 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
 
     private void dash() //추가적인 메모 필요
     {
-        if (dashTimer == 0.0f && Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.F)) 
+        if (dashTimer == 0.0f && dashCollTimer == 0.0f && 
+            Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.F)) 
         {
             //Input.GetKeyDown(dashKey);//이런식으로 가능
             dashTimer = dashTime;
+            dashCollTimer = dashTime;
             verticalVelocity = 0;
+            dashEffpact.enabled = true;
+
+            rigid.velocity = new Vector2(transform.localScale.x > 0 ? -dashSpeed : dashSpeed,0.0f);
+            #region 다른 형태
             //if (transform.localScale.x > 0f) //왼쪽
             //{
             //    rigid.velocity = new Vector2(-dashSpeed, verticalVelocity);
@@ -141,8 +160,10 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
             //    rigid.velocity = new Vector2(dashSpeed, verticalVelocity);
             //}
 
-            //rigid.velocity = transform.localScale.x>0 ? new Vector2(-dashSpeed);
-            rigid.velocity = new Vector2(transform.localScale.x > 0 ? -dashSpeed : dashSpeed,0.0f);
+            //rigid.velocity = transform.localScale.x>0 ? 
+            //      new Vector2(-dashSpeed,verticalVelocity)
+            //    : new Vector2(dashSpeed, verticalVelocity);
+            #endregion
         }
 
     }
@@ -198,7 +219,30 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
             if (dashTimer < 0.0f)
             {
                 dashTimer = 0.0f;
+                dashEffpact.enabled = false;
+                dashEffpact.Clear();//데이터 삭제
             }
+        }
+
+        if (dashCollTimer > 0.0f)
+        {
+            if (objDashCoolTime.activeSelf == false) 
+            {
+                objDashCoolTime.SetActive(true);
+            }
+
+
+            dashCollTimer -= Time.deltaTime;
+            if (dashCollTimer < 0.0f)
+            {
+                dashCollTimer = 0.0f;
+                objDashCoolTime.SetActive(false);
+
+            }
+            //2(타이머)/2(최대 타이머) = 1,0.5,0
+            //dashCollTime = 2초, 스킬을 쓰면 0. 점점 1이 되어가야 함
+
+            TextCoolTime.text = dashCollTimer.ToString("F1");
         }
     }
 
@@ -308,6 +352,8 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         {
             isJump = true; 
         }
+
+        //Imageit.fill
     }
     /// <summary>
     /// Rigidbody2D에 중력을 0으로하고 해당 함수로 중력을 재현함
@@ -359,6 +405,13 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     {
         anim.SetInteger("Horizontal",(int)moveDir.x);//int 형변환 후 Horizontal에 수치 부여
         anim.SetBool("isGrund", isGround);//boll형태여서 o/x형태로 부여
+    }
+
+    private void initUi() 
+    {
+        objDashCoolTime.SetActive(false);
+        //imgFill.fillAmount = 0;
+        TextCoolTime.text = "";
     }
 
     
