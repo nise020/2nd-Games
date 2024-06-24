@@ -397,7 +397,8 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         {
              verticalVelocity = 0;//예외처리 필요
         }
-        rigid.velocity = new Vector2(rigid.velocity.x, verticalVelocity);
+        rigid.velocity = new Vector2(rigid.velocity.x, verticalVelocity);//점프
+        //verticalVelocity - 수직속도
     }
     /// <summary>
     /// 애니메이션 구동 값 부여

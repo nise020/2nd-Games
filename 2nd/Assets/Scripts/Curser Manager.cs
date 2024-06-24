@@ -11,12 +11,13 @@ public class CurserManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //마우스 커서 전환
         if (Input.GetKey(KeyCode.Mouse0)) 
         {
             Cursor.SetCursor(cursors[1],new Vector2(cursors[1].width * 0.5f ,
-                cursors[1].height * 0.5f),CursorMode.Auto);
+               cursors[1].height * 0.5f), CursorMode.Auto);
         }
-        else
+        else//기본상태
         {
             Cursor.SetCursor(cursors[0], new Vector2(cursors[1].width * 0.5f,
                cursors[1].height * 0.5f), CursorMode.Auto);

@@ -1,13 +1,17 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class AttackController : MonoBehaviour
 {
     Camera mainCam;
     [SerializeField] Transform trshand;//Hand
-    [SerializeField] GameObject objWapon;
-    [SerializeField] Transform trsWapon;
+    [SerializeField] GameObject objWapon;//오브젝트
+    [SerializeField] Transform trsWapon;//생성 포인트
+    [SerializeField] Transform trsobDynamic;//생성탭
+    [SerializeField] Vector2 throwForce = new Vector2 (10,0f);
+
     private void Start()
     {
         mainCam = Camera.main;//메인 카메라
@@ -47,11 +51,21 @@ public class AttackController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse1)) 
         {
-            Creat();
+            CreatWapon();
         }
     }
-    private void Creat() 
+    private void CreatWapon() 
     {
-        //GameObject g0 = Instantiate(objWapon, );
+        GameObject go = Instantiate(objWapon, trsWapon.position, trsWapon.rotation,trsobDynamic);//칼 생성
+        ThrowWapon gos = go.GetComponent<ThrowWapon>();
+        bool isRight = transform.localScale.x < 0 ? true : false;//.x < 0 경우 true or false
+        Vector2 fixedforce = throwForce;
+        if (isRight==false) 
+        {
+            fixedforce = -throwForce;//x 10 , y 0
+        }
+        gos.setForce(trsWapon.rotation * fixedforce, isRight);//회전
+
     }
+
 }
