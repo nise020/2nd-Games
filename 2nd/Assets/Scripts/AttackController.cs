@@ -23,7 +23,7 @@ public class AttackController : MonoBehaviour
         checkAim();
         checkCreat();
     }
-    private void checkAim()
+    private void checkAim()//俊烙
     {
         Vector2 mouseWorldPos = mainCam.ScreenToWorldPoint(Input.mousePosition);
         //Debug.Log(mouseWorldPos);
@@ -54,7 +54,7 @@ public class AttackController : MonoBehaviour
             CreatWapon();
         }
     }
-    private void CreatWapon() 
+    private void CreatWapon()//带瘤扁+积己 
     {
         GameObject go = Instantiate(objWapon, trsWapon.position, trsWapon.rotation,trsobDynamic);//漠 积己
         ThrowWapon gos = go.GetComponent<ThrowWapon>();

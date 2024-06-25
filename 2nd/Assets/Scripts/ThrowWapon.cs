@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ThrowWapon : MonoBehaviour
 {
+
     Rigidbody2D rigid;
     Vector2 force;
     //°¢µµXÈû = Vector

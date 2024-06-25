@@ -39,7 +39,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
     [SerializeField] private float dashSpeed = 20.0f;
     float dashTimer = 0.0f;//타이머
     TrailRenderer dashEffpact;//대시이펙트,null
-    [SerializeField] private float dashCollTime = 2f;
+    [SerializeField] private float dashCollTime = 2.0f;
     float dashCollTimer = 0.0f;
 
     //글로벌 쿨타임
@@ -130,12 +130,12 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         dash();
 
         moving();
-        doAnim();
+        checkAnim();
         jump();
 
         checkGravity();
 
-        checkAnim();
+        doAnim();
     }
 
     private void dash() //추가적인 메모 필요
@@ -145,7 +145,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
         {
             //Input.GetKeyDown(dashKey);//이런식으로 가능
             dashTimer = dashTime;
-            dashCollTimer = dashTime;
+            dashCollTimer = dashCollTime;
             verticalVelocity = 0;
             dashEffpact.enabled = true;
 
@@ -241,6 +241,7 @@ public class MoveController : MonoBehaviour//바꿀시 ctrl+R+R
             }
             //2(타이머)/2(최대 타이머) = 1/0.5/0
             //dashCollTime = 2초, 스킬을 쓰면 0. 점점 1이 되어가야 함
+
             imgFill.fillAmount = 1 - dashCollTimer / dashCollTime;
             TextCoolTime.text = dashCollTimer.ToString("F1");
             //F0 = 1 , F1 =1.0 , F2 1.00
