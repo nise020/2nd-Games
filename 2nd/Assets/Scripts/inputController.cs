@@ -15,7 +15,7 @@ public class inputController : MonoBehaviour
  
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.I) && inventoryManager != null) 
+        if (Input.GetKeyDown(KeyCode.I) && inventoryManager != null)//입력시 해당 캔버스 생성
         {
             inventoryManager.InActiveInventory();
         }
