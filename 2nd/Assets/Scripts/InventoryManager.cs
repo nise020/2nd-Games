@@ -10,8 +10,8 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] GameObject fabItem;//인벤토리에 생설될 프리팹
 
     List<Transform> listInventory = new List<Transform>();
-
-
+    [SerializeField] Transform canvarsInvenTory;
+    public Transform CanvarsInvenTory => canvarsInvenTory;
     private void Awake()
     {
         if (Instance == null)
@@ -27,13 +27,18 @@ public class InventoryManager : MonoBehaviour
     void Start()
     {
         initInventoru();
+        
     }
-
+    private void Update()
+    {
+        getEmptyItemSlot();
+    }
     private void initInventoru() //인벤토리 초기화
     {
-        listInventory.Clear();//초기화 작업(오류방지)_
+        listInventory.Clear();//초기화 작업(오류방지)_데이터 용량이 크기 때문
 
         Transform[] childs = viewInventory.transform.GetComponentsInChildren<Transform>();
+        //Array 구조 <- 제한을 두지 않는다
 
         listInventory.AddRange(childs);
         listInventory.RemoveAt(0);//0번(본인) 지우기
@@ -68,18 +73,34 @@ public class InventoryManager : MonoBehaviour
     /// 비어있는 인벤토리 번호를 리턴,-1이 리턴되면 비어 있는 슬롯이 없다
     /// </summary>
     /// <returns>비어있는 아이템 슬롯번호</returns>
-    private int getEmptyItem() 
+    private int getEmptyItemSlot() //위치 조정 필요?
     {
         int count = listInventory.Count;
         for(int iNum = 0; iNum < count; iNum++) 
         {
-            Transform trs = listInventory[iNum];
-            if (trs.childCount == 0) 
+            Transform trsSlot = listInventory[iNum];
+            if (trsSlot.childCount == 0) 
             {
                 return iNum;
             }
         }
         return -1;
+    }
+
+    public bool getItem(string _idx) 
+    {
+        int slotNum = getEmptyItemSlot();
+        if (slotNum == -1) 
+        {
+            return false;
+        }
+
+        GameObject go = Instantiate(fabItem, listInventory[slotNum]);
+        //오브젝트에게 너는 _idx번호가 너의 정보 데이터야
+        return true;
+
+        //Resources<-게임 빌드하면 암호화 되서 수정이 불가하다
+        //1차 보안
     }
 }
 
