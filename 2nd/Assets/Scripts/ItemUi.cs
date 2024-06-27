@@ -61,5 +61,7 @@ public class Item : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
         }
         canvasGroup.alpha = 1;
         canvasGroup.blocksRaycasts = true;
+        //인벤토라 밖으로 나갔을때 삭제 하는 기능은 이 코드가 들어가 있는 iTem의 부모인 Slot이 아니라
+        //더 위에 부모인 Inventory로 연결 필요
     }
 }

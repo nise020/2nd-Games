@@ -10,7 +10,8 @@ public class ThrowWapon : MonoBehaviour
     //°¢µµXÈû = Vector
     bool right;
     bool isdone = false;
-    
+    BoxCollider2D coll;
+
     private void Awake()
     {
         rigid=GetComponent<Rigidbody2D>();
@@ -34,7 +35,7 @@ public class ThrowWapon : MonoBehaviour
     {
         if (isdone == true) { return; }
         transform.Rotate(new Vector3(0,0,
-            right == true ? -360f :360)*Time.deltaTime);
+            right == true ? -360f :360f)*Time.deltaTime);
         
     }
 

@@ -9,9 +9,12 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] GameObject viewInventory;//인벤토리뷰
     [SerializeField] GameObject fabItem;//인벤토리에 생설될 프리팹
 
-    List<Transform> listInventory = new List<Transform>();
-    [SerializeField] Transform canvarsInvenTory;
     public Transform CanvarsInvenTory => canvarsInvenTory;
+
+    [SerializeField] Transform canvarsInvenTory;
+
+    List<Transform> listInventory = new List<Transform>();
+
     private void Awake()
     {
         if (Instance == null)
@@ -28,10 +31,6 @@ public class InventoryManager : MonoBehaviour
     {
         initInventoru();
         
-    }
-    private void Update()
-    {
-        getEmptyItemSlot();
     }
     private void initInventoru() //인벤토리 초기화
     {
@@ -87,7 +86,7 @@ public class InventoryManager : MonoBehaviour
         return -1;
     }
 
-    public bool getItem(string _idx) 
+    public bool GetItem(string _idx) 
     {
         int slotNum = getEmptyItemSlot();
         if (slotNum == -1) 
