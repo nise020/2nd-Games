@@ -22,17 +22,7 @@ public class InventorySlot : MonoBehaviour, IPointerEnterHandler,IPointerExitHan
         rect = GetComponent<RectTransform>();
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+ 
     /// <summary>
     /// 마우스가 인벤토리 영역 들어갈때
     /// </summary>

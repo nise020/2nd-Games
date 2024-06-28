@@ -72,7 +72,7 @@ public class InventoryManager : MonoBehaviour
     /// 비어있는 인벤토리 번호를 리턴,-1이 리턴되면 비어 있는 슬롯이 없다
     /// </summary>
     /// <returns>비어있는 아이템 슬롯번호</returns>
-    private int getEmptyItemSlot() //위치 조정 필요?
+    private int getEmptyItemSlot() 
     {
         int count = listInventory.Count;
         for(int iNum = 0; iNum < count; iNum++) 
@@ -96,8 +96,9 @@ public class InventoryManager : MonoBehaviour
 
         GameObject go = Instantiate(fabItem, listInventory[slotNum]);
         //오브젝트에게 너는 _idx번호가 너의 정보 데이터야
+        ItemUi goSc = go.GetComponent<ItemUi>();
+        goSc.SetItem(_idx);
         return true;
-
         //Resources<-게임 빌드하면 암호화 되서 수정이 불가하다
         //1차 보안
     }

@@ -6,17 +6,18 @@ using UnityEngine.EventSystems;
 
 //드래그가 가능한 인벤토리 아이템
 
-public class Item : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
+public class ItemUi : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandler
 {
 
     Transform canvas;//드래그 할때 슬롯UI 뒤로 그려지는 것을 방지하기 위해 잠깐 이용할 캔버스
     Transform beforeParant;//혹시 잘못된 위치에 드롭하게 되면 돌아오게 만들 위치
     //레이캐스트 타겟
     CanvasGroup canvasGroup;//자식들을 통합 관리하는 컴포넌트
+    Image imgItem;
 
     private void Awake()
     {
-        canvasGroup = GetComponent<CanvasGroup>();
+        canvasGroup = GetComponent<CanvasGroup>();     
     }
     void Start()
     {
@@ -30,7 +31,10 @@ public class Item : MonoBehaviour, IBeginDragHandler,IDragHandler,IEndDragHandle
     /// <param name="_idx">아이템 인덱스 넘버</param>
     public void SetItem(string _idx) 
     {
-
+        string spritName = JsonManager.instance.GetNameFromIdx(_idx);//스프라이트
+        
+        imgItem = GetComponent<Image>();
+        imgItem.sprite = SpritManager.instance.GetSprite(spritName); 
     }
     /// <summary>
     /// 드래그 시작 기능 -> IBeginDragHandler

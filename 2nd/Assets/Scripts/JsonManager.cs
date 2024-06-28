@@ -35,6 +35,8 @@ public class JsonManager : MonoBehaviour
         //itemData = Resources.Load<TextAsset>("ItemData");//null
 
         //확장자 입력ㄴㄴ/폴더명/ItemData<-파일명
+
+
     }
     
 
